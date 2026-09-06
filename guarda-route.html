@@ -49,4 +49,4 @@ $('#randomize').onclick=()=>{const z=S.edit,a=[0,1,2,3,4,5,6,7,8];for(let i=a.le
 $('#zin').onclick=()=>{S.zoom=Math.min(1.45,S.zoom+.08);applyWorldTransform()};$('#zout').onclick=()=>{S.zoom=Math.max(.42,S.zoom-.08);applyWorldTransform()};$('#home').onclick=()=>{S.zoom=.82;S.panX=S.panY=0;applyWorldTransform()};
 const dz=$('#dragZone');let drag=false,lx=0,ly=0;dz.addEventListener('pointerdown',e=>{drag=true;lx=e.clientX;ly=e.clientY;dz.setPointerCapture(e.pointerId)});dz.addEventListener('pointermove',e=>{if(!drag)return;S.panX+=e.clientX-lx;S.panY+=e.clientY-ly;lx=e.clientX;ly=e.clientY;applyWorldTransform()});dz.addEventListener('pointerup',()=>drag=false);dz.addEventListener('wheel',e=>{e.preventDefault();S.zoom=Math.max(.42,Math.min(1.45,S.zoom+(e.deltaY<0?.06:-.06)));applyWorldTransform()},{passive:false});
 renderAll();
-</script></body></html>
+</script><script src="assets/guarda/walk-data.js"></script><script src="assets/guarda/guarda-path.js"></script></body></html>
