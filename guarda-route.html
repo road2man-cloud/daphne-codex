@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>구아르다 성채 입체 이동 경로 · Daphne Codex</title>
+<style>
+:root{color-scheme:dark;--bg:#090b0f;--panel:#12161d;--line:#303845;--text:#eef2f7;--muted:#9aa5b4;--gold:#e6bd62;--cyan:#72d7ff;--red:#ff857e;--green:#83e2a5}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 50% -10%,#202839 0,#0b0e13 38%,#080a0d 100%);color:var(--text);font:15px/1.55 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+main{max-width:1240px;margin:auto;padding:20px 16px 70px}a{color:#9edcff}nav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}nav a{padding:6px 9px;border:1px solid #2b3542;border-radius:9px;text-decoration:none;background:#10151c}
+h1{font:700 clamp(30px,5vw,46px) Georgia,serif;margin:8px 0}.sub{color:var(--muted);max-width:900px}.toolbar,.planner,.legend,.sources{border:1px solid var(--line);background:rgba(17,21,28,.92);border-radius:14px;padding:12px;margin:14px 0}
+.toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.toolbar button,.toolbar select,.planner button{background:#0b0f15;color:#fff;border:1px solid #465162;border-radius:10px;padding:9px 11px;font:inherit;cursor:pointer}
+.toolbar button.active{border-color:var(--gold);color:#ffe1a2;background:#2b2417}.toolbar .spacer{flex:1}.toolbar label{color:var(--muted);font-size:13px}.layout{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(280px,.7fr);gap:14px}.mapcard{border:1px solid var(--line);border-radius:16px;background:#0d1117;overflow:hidden;min-height:560px}
+#map{display:block;width:100%;height:auto;min-height:560px}.floorband{fill:#111822;stroke:#273342;stroke-width:1}.floorname{fill:#64748b;font-size:24px;font-weight:800}.edge{fill:none;stroke:#536172;stroke-width:5;stroke-linecap:round;opacity:.58}.edge.pit{stroke:#d7706b;stroke-dasharray:10 10}.edge.stair{stroke:#68bde1}.edge.warp{stroke:#b78ef0;stroke-dasharray:3 10}.edge.oneway{stroke:#e3ad57}
+.edge.route{stroke:#ffd06a;stroke-width:9;opacity:1;filter:drop-shadow(0 0 5px #ffcd62);stroke-dasharray:13 8;animation:flow .8s linear infinite}.node{cursor:pointer}.node circle{fill:#17202a;stroke:#738194;stroke-width:3}.node text{fill:#f4f7fb;font-size:13px;font-weight:700;pointer-events:none}.node .small{fill:#9ca9b9;font-size:10px;font-weight:500}.node.start circle{stroke:var(--green);stroke-width:6}.node.end circle{stroke:var(--red);stroke-width:6}.node.onroute circle{fill:#322b1a;stroke:var(--gold)}.node:hover circle,.node:focus circle{stroke:#fff}
+.planner h2{margin:0 0 8px;font-size:18px}.choice{display:grid;grid-template-columns:1fr 1fr;gap:8px}.choice div{border:1px solid #2e3947;border-radius:11px;padding:9px;background:#0b0f15}.choice b{display:block;color:#a9b4c2;font-size:11px;text-transform:uppercase}.choice span{display:block;margin-top:2px;font-weight:750}.hint{color:#9ca8b8;font-size:13px}.routeSteps{padding-left:20px}.routeSteps li{margin:8px 0}.tag{display:inline-block;border:1px solid #384657;border-radius:999px;padding:1px 7px;font-size:11px;margin-right:4px}.tag.pit{color:#ffaaa5}.tag.stair{color:#9cddfb}.tag.warp{color:#d8b7ff}.tag.walk{color:#bac5d1}.tag.oneway{color:#ffd18b}
+.legend{display:flex;gap:10px;flex-wrap:wrap;color:#aeb8c5}.sources{color:#aeb8c5}.sources strong{color:#fff}.warn{border-left:3px solid var(--gold);padding-left:10px;color:#d8c9aa}.mobile-note{display:none}
+@keyframes flow{to{stroke-dashoffset:-21}}@media(prefers-reduced-motion:reduce){.edge.route{animation:none}}@media(max-width:820px){.layout{grid-template-columns:1fr}.mapcard{min-height:430px}#map{min-height:430px}.mobile-note{display:block;color:#8794a4;font-size:12px}}
+</style>
+</head>
+<body><main>
+<nav><a href="index.html">스킬 검색</a><a href="ranking.html">스킬 랭킹</a><a href="wt-compare.html">2000WT 비교</a><a href="enemy-database.html">적 정보</a></nav>
+<h1>구아르다 성채 입체 이동 경로</h1>
+<p class="sub">2·3구역과 8·9·10구역의 <b>낙하·사다리·계단·워프</b>를 층을 겹쳐서 보는 연결도입니다. 선이 화면에서 교차해도 실제 연결 노드가 없으면 이동하지 않습니다. 출발점과 목적지를 차례로 클릭하면 층간 이동까지 포함한 경로를 즉시 계산합니다.</p>
+<section class="toolbar">
+<button data-group="early" class="active">2·3구역</button><button data-group="late">8·9·10구역</button>
+<span class="spacer"></span>
+<label>블록 배치 보기 <select id="variant"><option value="canonical">연결 기준</option><option value="a">배치 예시 A</option><option value="b">배치 예시 B</option><option value="c">배치 예시 C</option></select></label>
+<button id="swap">출발↔도착</button><button id="reset">초기화</button>
+</section>
+<div class="layout">
+<div class="mapcard"><svg id="map" viewBox="0 0 1000 620" role="img" aria-label="구아르다 층간 이동 연결도"></svg></div>
+<aside class="planner">
+<h2>경로 선택</h2><div class="choice"><div><b>START</b><span id="startLabel">-</span></div><div><b>GOAL</b><span id="endLabel">-</span></div></div>
+<p id="selectHint" class="hint">노드를 클릭하면 출발점이 바뀝니다. 다시 클릭하면 목적지를 지정합니다.</p>
+<div id="summary" class="warn"></div><ol id="steps" class="routeSteps"></ol>
+</aside></div>
+<div class="legend"><span>● 일반 이동</span><span style="color:#9cddfb">━━ 계단/사다리</span><span style="color:#ffaaa5">┄┄ 낙하(단방향)</span><span style="color:#d8b7ff">··· 워프</span><span style="color:#ffd18b">→ 일방통행</span></div>
+<p class="mobile-note">모바일에서는 지도를 가로로 돌려 보면 층간 연결이 더 잘 보입니다.</p>
+<section class="sources">
+<strong>케노니컬 처리 원칙</strong>
+<p>공략 자료에서 공통으로 확인되는 것은 ① 일부 맵 블록은 계정별로 달라질 수 있지만 주요 계단·하켄·진행 연결은 공통이고, ② 2→3구역 낙하는 겹친 지도의 같은 위치로 떨어지며 3구역 사다리로 2구역에 복귀하고, ③ 9→8·10→9구역 낙하도 같은 위치 대응이라는 점입니다. 따라서 이 페이지는 타일 그림 자체보다 <b>연결 관계를 케노니컬로 고정</b>하고, 블록 배치 차이는 시각 레이어로만 바꿉니다.</p>
+<p>확인 출처: <a href="https://appmedia.jp/wizdaphne/78590948" target="_blank" rel="noopener">AppMedia 2·3구역</a> · <a href="https://appmedia.jp/wizdaphne/78633455" target="_blank" rel="noopener">AppMedia 8·9·10구역</a> · <a href="https://gamerch.com/wizardry-daphne/905849" target="_blank" rel="noopener">Gamerch 구아르다 맵/기믹</a></p>
+<p class="hint">※ “배치 예시”는 계정별로 바뀌는 통로 블록의 모양 차이를 이해하기 위한 정규화 보기입니다. 현재 확인되지 않은 타일 조합을 특정 패턴 번호라고 단정하지 않습니다.</p>
+</section>
+<script>
+const GROUPS={
+early:{
+ floors:[{n:2,y:80,label:"2구역 · 옛 비도 B2F"},{n:3,y:350,label:"3구역 · 옛 비도 B3F"}],
+ defaults:["e2","boss3"],
+ nodes:[
+  ["e2",2,90,160,"2F 입구","1구역에서 진입"],["j2a",2,245,160,"서측 분기","일반 통로",1],["p2a",2,390,160,"낙하 A","3F 동일 위치로 낙하"],
+  ["r2a",2,535,160,"2F 복귀 A","3F 사다리에서 복귀"],["p2b",2,690,160,"낙하 B","3F 동일 위치로 낙하",1],["r2b",2,840,160,"2F 복귀 B","사다리 복귀",1],
+  ["land3a",3,390,430,"3F 착지 A","낙하 A 도착"],["lad3a",3,535,430,"사다리 A","2F로 상승"],["land3b",3,690,430,"3F 착지 B","낙하 B 도착",1],
+  ["lad3b",3,840,430,"사다리 B","2F로 상승",1],["boss3",3,910,520,"네크로코어","최종 낙하 뒤 보스"],["out3",3,760,520,"하켄·4구역 계단","보스 뒤 진행"]
+ ],
+ edges:[
+  ["e2","j2a","walk",1],["j2a","p2a","walk",1],["p2a","land3a","pit",0],["land3a","lad3a","walk",1],["lad3a","r2a","stair",1],
+  ["r2a","p2b","walk",1],["p2b","land3b","pit",0],["land3b","lad3b","walk",1],["lad3b","r2b","stair",1],
+  ["r2b","boss3","pit",0],["boss3","out3","walk",1]
+ ]
+},
+late:{
+ floors:[{n:10,y:45,label:"10구역 · 성채 3F 영주의 방"},{n:9,y:235,label:"9구역 · 성채 2F 집무실"},{n:8,y:425,label:"8구역 · 성채 1F 현관"}],
+ defaults:["e8","gate10"],
+ nodes:[
+  ["e8",8,80,510,"8F 진입","7구역에서 진입"],["s8a",8,245,510,"8→9 계단 A","9F로 상승",1],["drop8a",8,430,510,"9F 낙하 도착 A","동일 위치"],
+  ["s8b",8,600,510,"8→9 계단 B","9F로 상승",1],["drop8b",8,750,510,"9F 낙하 도착 B","동일 위치",1],["s8c",8,890,540,"8→9 계단 C","9F 동측으로 상승",1],
+  ["n9a",9,245,320,"9F 하부","8F 계단 도착"],["pit9a",9,430,320,"9→8 낙하 A","8F 동일 위치",1],["n9b",9,600,320,"9F 중앙","8F 계단 도착"],
+  ["h9",9,740,270,"하켄","1회차 마지막 보급"],["pit9b",9,780,320,"9→8 낙하 B","정규 진행 낙하"],["n9c",9,855,350,"9F 동측","8F 계단 도착",1],["s9t10",9,930,320,"9→10 계단","10F로 상승",1],
+  ["spring10",10,900,125,"10F 샘","10F 도달 거점"],["warp10",10,760,125,"9F 하켄 워프","샘 오른쪽 방"],["pit10",10,575,125,"10→9 낙하","9F 동일 위치",1],
+  ["inner10",10,390,125,"10F 내부","영주의 방/진행",1],["gate10",10,180,125,"개문장치·보스","최종 진행"]
+ ],
+ edges:[
+  ["e8","s8a","walk",1],["s8a","n9a","stair",1],["n9a","pit9a","walk",1],["pit9a","drop8a","pit",0],["drop8a","s8b","walk",1],
+  ["s8b","n9b","stair",1],["n9b","h9","walk",1],["h9","pit9b","walk",1],["pit9b","drop8b","pit",0],["drop8b","s8c","walk",1],["s8c","n9c","stair",1],["n9c","s9t10","walk",1],
+  ["s9t10","spring10","stair",1],["spring10","warp10","walk",1],["warp10","h9","warp",0],["spring10","pit10","walk",1],["pit10","n9b","pit",0],
+  ["spring10","inner10","walk",1],["inner10","gate10","walk",1]
+ ]
+}};
+let group="early",start=null,end=null,pick="start",variant="canonical";
+const svg=document.getElementById("map"),NS="http://www.w3.org/2000/svg";
+const byId=id=>GROUPS[group].nodes.find(n=>n[0]===id);
+function pos(n){let [id,f,x,y,,,v]=n;if(!v||variant==="canonical")return[x,y];const seed=[...id].reduce((a,c)=>a+c.charCodeAt(0),0);const k={a:1,b:2,c:3}[variant]||0;return[x+(((seed*k)%5)-2)*18,y+(((seed+k)%3)-1)*14]}
+function adj(){const m=new Map(GROUPS[group].nodes.map(n=>[n[0],[]]));for(const [a,b,k,bi] of GROUPS[group].edges){m.get(a).push([b,k]);if(bi)m.get(b).push([a,k])}return m}
+function path(a,b){const q=[a],prev=new Map([[a,null]]),kind=new Map();const A=adj();while(q.length){const u=q.shift();if(u===b)break;for(const [v,k] of A.get(u)||[])if(!prev.has(v)){prev.set(v,u);kind.set(v,k);q.push(v)}}if(!prev.has(b))return[];const p=[];for(let x=b;x;x=prev.get(x))p.push(x);p.reverse();return p.map((id,i)=>({id,kind:i?kind.get(id):null}))}
+function el(name,attrs={}){const x=document.createElementNS(NS,name);for(const[k,v]of Object.entries(attrs))x.setAttribute(k,v);return x}
+function edgeKey(a,b){return [a,b].sort().join("|")}
+function edgeKind(a,b){for(const e of GROUPS[group].edges)if((e[0]===a&&e[1]===b)||(e[3]&&e[0]===b&&e[1]===a))return e[2];return"walk"}
+function render(){
+ svg.innerHTML="";const G=GROUPS[group],p=start&&end?path(start,end):[],routePairs=new Set(p.slice(1).map((s,i)=>edgeKey(p[i].id,s.id)));
+ for(const f of G.floors){svg.append(el("rect",{x:25,y:f.y,width:950,height:150,rx:22,class:"floorband"}));const t=el("text",{x:45,y:f.y+38,class:"floorname"});t.textContent=f.label;svg.append(t)}
+ for(const e of G.edges){const a=byId(e[0]),b=byId(e[1]),[x1,y1]=pos(a),[x2,y2]=pos(b),key=edgeKey(e[0],e[1]);let cls=`edge ${e[2]}`;if(p.length&&routePairs.has(key))cls+=" route";svg.append(el("line",{x1,y1,x2,y2,class:cls}))}
+ for(const n of G.nodes){const [id,,x0,y0,label,sub]=n,[x,y]=pos(n),g=el("g",{class:`node${id===start?" start":""}${id===end?" end":""}${p.some(s=>s.id===id)?" onroute":""}`,tabindex:"0",role:"button","aria-label":label});g.append(el("circle",{cx:x,cy:y,r:17}));const t=el("text",{x:x+23,y:y-2});t.textContent=label;g.append(t);const s=el("text",{x:x+23,y:y+14,class:"small"});s.textContent=sub;g.append(s);g.addEventListener("click",()=>choose(id));g.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();choose(id)}});svg.append(g)}
+ updatePanel(p)
+}
+function choose(id){if(pick==="start"){start=id;pick="end";document.getElementById("selectHint").textContent="이제 목적지를 클릭하세요."}else{end=id;pick="start";document.getElementById("selectHint").textContent="다음 클릭부터 새 출발점을 지정합니다."}render()}
+function updatePanel(p){
+ document.getElementById("startLabel").textContent=start?byId(start)[4]:"-";document.getElementById("endLabel").textContent=end?byId(end)[4]:"-";
+ const out=document.getElementById("steps"),sum=document.getElementById("summary");out.innerHTML="";
+ if(!start||!end){sum.textContent="출발점과 목적지를 선택하세요.";return}
+ if(!p.length){sum.textContent="현재 연결 규칙으로는 이 방향의 경로가 없습니다. 낙하·워프 같은 단방향 때문에 역방향이 막힐 수 있습니다.";return}
+ const floors=[...new Set(p.map(s=>byId(s.id)[1]))];sum.textContent=`${p.length-1}단계 · ${floors.map(f=>f+"구역").join(" → ")} 경유`;
+ p.forEach((s,i)=>{const li=document.createElement("li"),n=byId(s.id);if(i===0){li.innerHTML=`<span class="tag walk">출발</span>${n[4]}`}else{const k=s.kind||edgeKind(p[i-1].id,s.id),names={walk:"이동",pit:"낙하",stair:"계단/사다리",warp:"워프",oneway:"일방통행"};li.innerHTML=`<span class="tag ${k}">${names[k]}</span>${n[4]} <small>(${n[1]}구역)</small>`}out.append(li)})
+}
+function setGroup(g){group=g;const d=GROUPS[g].defaults;start=d[0];end=d[1];pick="start";document.querySelectorAll("[data-group]").forEach(b=>b.classList.toggle("active",b.dataset.group===g));render()}
+document.querySelectorAll("[data-group]").forEach(b=>b.onclick=()=>setGroup(b.dataset.group));
+document.getElementById("variant").onchange=e=>{variant=e.target.value;render()};
+document.getElementById("swap").onclick=()=>{[start,end]=[end,start];render()};
+document.getElementById("reset").onclick=()=>setGroup(group);
+setGroup("early");
+</script>
+</main></body></html>
