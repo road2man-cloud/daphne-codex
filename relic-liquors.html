@@ -7,11 +7,12 @@
 <style>
 :root{--bg:#0a0d13;--panel:#111827;--panel2:#0f172a;--line:#273244;--text:#e5e7eb;--muted:#9ca3af;--gold:#f4c96b;--blue:#63b3ff;--green:#67d391;--red:#f28b82}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px/1.55 system-ui,-apple-system,"Noto Sans KR",sans-serif}main{max-width:1500px;margin:auto;padding:22px}
-a{color:var(--blue);text-decoration:none}.back{display:inline-block;margin-bottom:12px}h1{margin:0;font-size:38px}h2{margin:0;font-size:20px}.sub{color:var(--muted);margin:7px 0 16px}.badge{display:inline-block;border:1px solid #315b46;background:#11251b;color:var(--green);border-radius:999px;padding:3px 9px;font-size:12px}.meta{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 16px}.stat{border:1px solid var(--line);background:var(--panel);border-radius:10px;padding:8px 11px}.controls{display:grid;grid-template-columns:minmax(240px,2fr) repeat(3,minmax(150px,1fr));gap:8px;margin:14px 0}.controls input,.controls select{width:100%;background:#0d1320;color:var(--text);border:1px solid var(--line);border-radius:8px;padding:10px}
+a{color:var(--blue);text-decoration:none}.back{display:inline-block;margin-bottom:8px}.quick{margin:0 0 14px;color:var(--muted)}.quick a{margin-right:5px}h1{margin:0;font-size:38px}h2{margin:0;font-size:20px}.sub{color:var(--muted);margin:7px 0 16px}.badge{display:inline-block;border:1px solid #315b46;background:#11251b;color:var(--green);border-radius:999px;padding:3px 9px;font-size:12px}.meta{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 16px}.stat{border:1px solid var(--line);background:var(--panel);border-radius:10px;padding:8px 11px}.controls{display:grid;grid-template-columns:minmax(240px,2fr) repeat(3,minmax(150px,1fr));gap:8px;margin:14px 0}.controls input,.controls select{width:100%;background:#0d1320;color:var(--text);border:1px solid var(--line);border-radius:8px;padding:10px}
 </style>
 </head>
 <body><main>
 <a class="back" href="./index.html">← Daphne Codex</a>
+<nav class="quick"><a href="./bondmates.html">인연 풀리스트</a> · <a href="./ranking.html">스킬 랭킹</a> · <a href="./wt-compare.html">2000WT 비교</a></nav>
 <h1>유물주 풀리스트</h1>
 <p class="sub">현행 클라이언트 마스터의 <code>relic/*</code> + <code>skill/*</code> 직접 조인. 외부 위키 수치 미사용.</p>
 <div><span class="badge">CURRENT_MASTER · DIRECT_RELIC_JOIN</span></div>
@@ -33,7 +34,8 @@ const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 const catText=a=>(a||[]).map(x=>x.name||`#${x.id}`).join(', ')||'—';
 const opt=(x)=>`<option value="${x.id}">${esc(x.name||x.id)}</option>`;
 function effectText(e){const vals=[e.param_1,e.param_2,e.param_3,e.param_4,e.param_5,e.param_6];const used=vals.map((v,i)=>[i+1,v]).filter(x=>x[1]!==0&&x[1]!=null);return `${esc(e.kind_name||('kind '+e.kind))}${used.length?' · '+used.map(x=>`p${x[0]}=${esc(x[1])}`).join(', '):''}`}
-function seriesTable(series,label,ident){if(!series?.length)return `<div class="box"><h3>${label}</h3><div class="sub">마스터 행 없음</div></div>`;return `<div class="box"><h3>${label} <span class="raw">ident ${ident}</span></h3><table><thead><tr><th>Lv</th><th>마스터 효과 / 수치</th></tr></thead><tbody>${series.map(x=>`<tr><td>${x.level}</td><td>${x.effects?.length?x.effects.map(effectText).join('<br>'):'—'}</td></tr>`).join('')}</tbody></table></div>`}
+function needPoint(lv){return (DATA?.skill_levels||[]).find(x=>Number(x.level)===Number(lv))?.need_point??'—'}
+function seriesTable(series,label,ident){if(!series?.length)return `<div class="box"><h3>${label}</h3><div class="sub">마스터 행 없음</div></div>`;return `<div class="box"><h3>${label} <span class="raw">ident ${ident}</span></h3><table><thead><tr><th>Lv</th><th>필요 pt</th><th>마스터 효과 / 수치</th></tr></thead><tbody>${series.map(x=>`<tr><td>${x.level}</td><td>${needPoint(x.level)}</td><td>${x.effects?.length?x.effects.map(effectText).join('<br>'):'—'}</td></tr>`).join('')}</tbody></table></div>`}
 </script>
 <script>
 function materialTable(a){return `<div class="box"><h3>유물 · 유물주</h3><table><thead><tr><th>등급</th><th>유물</th><th>유물주</th><th>raw</th></tr></thead><tbody>${(a||[]).map(m=>`<tr><td>${m.grade??'—'}</td><td>${esc(m.item_name||'—')}</td><td>${esc(m.liquor_name||'—')}</td><td class="raw">rank=${esc(m.rank)} · alignment=${esc(m.alignment)}</td></tr>`).join('')}</tbody></table></div>`}
