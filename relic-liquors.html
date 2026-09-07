@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>유물주 풀리스트 · Daphne Codex</title>
+<style>
+:root{--bg:#0a0d13;--panel:#111827;--panel2:#0f172a;--line:#273244;--text:#e5e7eb;--muted:#9ca3af;--gold:#f4c96b;--blue:#63b3ff;--green:#67d391;--red:#f28b82}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px/1.55 system-ui,-apple-system,"Noto Sans KR",sans-serif}main{max-width:1500px;margin:auto;padding:22px}
+a{color:var(--blue);text-decoration:none}.back{display:inline-block;margin-bottom:12px}h1{margin:0;font-size:38px}h2{margin:0;font-size:20px}.sub{color:var(--muted);margin:7px 0 16px}.badge{display:inline-block;border:1px solid #315b46;background:#11251b;color:var(--green);border-radius:999px;padding:3px 9px;font-size:12px}.meta{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 16px}.stat{border:1px solid var(--line);background:var(--panel);border-radius:10px;padding:8px 11px}.controls{display:grid;grid-template-columns:minmax(240px,2fr) repeat(3,minmax(150px,1fr));gap:8px;margin:14px 0}.controls input,.controls select{width:100%;background:#0d1320;color:var(--text);border:1px solid var(--line);border-radius:8px;padding:10px}
+</style>
+</head>
+<body><main>
+<a class="back" href="./index.html">← Daphne Codex</a>
+<h1>유물주 풀리스트</h1>
+<p class="sub">현행 클라이언트 마스터의 <code>relic/*</code> + <code>skill/*</code> 직접 조인. 외부 위키 수치 미사용.</p>
+<div><span class="badge">CURRENT_MASTER · DIRECT_RELIC_JOIN</span></div>
+<div id="meta" class="meta"></div>
+<div class="controls">
+<input id="q" type="search" placeholder="유물주 / 유물 / 효과 / ID 검색">
+<select id="up"><option value="">상승 효과 전체</option></select>
+<select id="down"><option value="">하락 효과 전체</option></select>
+<select id="sort"><option value="id">ID순</option><option value="name">이름순</option></select>
+</div>
+<div id="status" class="sub">데이터 읽는 중…</div>
+<section id="list"></section>
+<style>
+.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;margin:10px 0;overflow:hidden}.card>summary{cursor:pointer;list-style:none;padding:13px 15px;display:flex;gap:10px;align-items:center}.card>summary::-webkit-details-marker{display:none}.id{font:12px ui-monospace,monospace;color:var(--muted)}.name{font-weight:750;font-size:17px}.cats{margin-left:auto;display:flex;gap:5px;flex-wrap:wrap}.pill{border:1px solid var(--line);border-radius:999px;padding:2px 7px;font-size:11px}.pill.up{color:var(--green)}.pill.down{color:var(--red)}.body{border-top:1px solid var(--line);padding:14px}.desc{white-space:pre-wrap;margin:0 0 12px}.cols{display:grid;grid-template-columns:1fr 1fr;gap:12px}.box{border:1px solid var(--line);background:var(--panel2);border-radius:9px;padding:11px}.box h3{margin:0 0 8px;font-size:14px;color:var(--gold)}table{width:100%;border-collapse:collapse;font-size:12px}th,td{border-bottom:1px solid #202a39;padding:6px;text-align:left;vertical-align:top}th{color:var(--muted);white-space:nowrap}.raw{font:11px ui-monospace,monospace;color:#aab4c3}.empty{padding:28px;text-align:center;color:var(--muted)}@media(max-width:900px){.controls{grid-template-columns:1fr 1fr}.cols{grid-template-columns:1fr}.cats{display:none}}@media(max-width:560px){main{padding:14px}h1{font-size:30px}.controls{grid-template-columns:1fr}.card>summary{align-items:flex-start;flex-direction:column}}
+</style>
+<script>
+const $=s=>document.querySelector(s);let DATA=null,records=[];
+const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const catText=a=>(a||[]).map(x=>x.name||`#${x.id}`).join(', ')||'—';
+const opt=(x)=>`<option value="${x.id}">${esc(x.name||x.id)}</option>`;
+function effectText(e){const vals=[e.param_1,e.param_2,e.param_3,e.param_4,e.param_5,e.param_6];const used=vals.map((v,i)=>[i+1,v]).filter(x=>x[1]!==0&&x[1]!=null);return `${esc(e.kind_name||('kind '+e.kind))}${used.length?' · '+used.map(x=>`p${x[0]}=${esc(x[1])}`).join(', '):''}`}
+function seriesTable(series,label,ident){if(!series?.length)return `<div class="box"><h3>${label}</h3><div class="sub">마스터 행 없음</div></div>`;return `<div class="box"><h3>${label} <span class="raw">ident ${ident}</span></h3><table><thead><tr><th>Lv</th><th>마스터 효과 / 수치</th></tr></thead><tbody>${series.map(x=>`<tr><td>${x.level}</td><td>${x.effects?.length?x.effects.map(effectText).join('<br>'):'—'}</td></tr>`).join('')}</tbody></table></div>`}
+</script>
+<script>
+function materialTable(a){return `<div class="box"><h3>유물 · 유물주</h3><table><thead><tr><th>등급</th><th>유물</th><th>유물주</th><th>raw</th></tr></thead><tbody>${(a||[]).map(m=>`<tr><td>${m.grade??'—'}</td><td>${esc(m.item_name||'—')}</td><td>${esc(m.liquor_name||'—')}</td><td class="raw">rank=${esc(m.rank)} · alignment=${esc(m.alignment)}</td></tr>`).join('')}</tbody></table></div>`}
+function card(r){return `<details class="card"><summary><span class="id">#${r.relic_skill_id}</span><span class="name">${esc(r.name)}</span><span class="cats">${(r.up_categories||[]).map(x=>`<span class="pill up">↑ ${esc(x.name)}</span>`).join('')}${(r.down_categories||[]).map(x=>`<span class="pill down">↓ ${esc(x.name)}</span>`).join('')}</span></summary><div class="body"><p class="desc">${esc(r.description||'설명 없음')}</p><div class="sub">상승: ${esc(catText(r.up_categories))} · 하락: ${esc(catText(r.down_categories))}</div><div class="cols">${materialTable(r.materials)}<div><div class="cols">${seriesTable(r.series_1,'계열 1',r.identification_1)}${seriesTable(r.series_2,'계열 2',r.identification_2)}</div></div></div></div></details>`}
+function render(){const q=$('#q').value.trim().toLowerCase(),up=$('#up').value,down=$('#down').value,sort=$('#sort').value;let a=records.filter(r=>{const text=[r.relic_skill_id,r.name,r.description,...(r.up_categories||[]).map(x=>x.name),...(r.down_categories||[]).map(x=>x.name),...(r.materials||[]).flatMap(m=>[m.item_name,m.liquor_name])].join(' ').toLowerCase();return(!q||text.includes(q))&&(!up||(r.up_categories||[]).some(x=>String(x.id)===up))&&(!down||(r.down_categories||[]).some(x=>String(x.id)===down))});a.sort(sort==='name'?(x,y)=>String(x.name).localeCompare(String(y.name),'ko'):(x,y)=>x.relic_skill_id-y.relic_skill_id);$('#status').textContent=`${a.length} / ${records.length} 계열`;$('#list').innerHTML=a.length?a.map(card).join(''):'<div class="empty">조건에 맞는 유물주가 없습니다.</div>'}
+</script>
+<script>
+async function init(){try{const res=await fetch('./relic_catalog_v1.json',{cache:'no-store'});if(!res.ok)throw new Error(`HTTP ${res.status}`);DATA=await res.json();records=DATA.records||[];const cats=DATA.effect_categories||[];$('#up').insertAdjacentHTML('beforeend',cats.map(opt).join(''));$('#down').insertAdjacentHTML('beforeend',cats.map(opt).join(''));const short=String(DATA.master_revision||'').slice(0,12);$('#meta').innerHTML=`<span class="stat">유물주 계열 <b>${records.length}</b></span><span class="stat">유물 <b>${DATA.counts?.relic_items??'—'}</b></span><span class="stat">주류 <b>${DATA.counts?.liquors??'—'}</b></span><span class="stat">효과 카테고리 <b>${cats.length}</b></span><span class="stat raw">master ${esc(short)}</span>`;render()}catch(e){$('#status').textContent='케노니컬 데이터를 불러오지 못했습니다: '+e.message}}
+['q','up','down','sort'].forEach(id=>$('#'+id).addEventListener(id==='q'?'input':'change',render));init();
+</script>
+</main></body></html>
