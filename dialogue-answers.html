@@ -15,7 +15,7 @@
 <a class="back" href="./index.html">← Daphne Codex</a>
 <nav class="quick"><a href="./ranking.html">스킬 랭킹</a> · <a href="./wt-compare.html">2000WT 비교</a> · <a href="./bondmates.html">인연 풀리스트</a> · <a href="./relic-liquors.html">유물주 풀리스트</a></nav>
 <h1>캠프 · 주점 대화 정답표</h1>
-<p class="sub">현행 Steam 1.36.0 클라이언트의 한국어 Addressables TextAsset에서 선택지와 판정 명령을 직접 파싱한 케노니컬 표.</p>
+<p class="sub">현행 Steam 1.36.0 클라이언트 Addressables에서 선택지와 판정 명령을 직접 파싱한 케노니컬 표. 한국어 번들에 남은 일본어 문구는 표시용 한국어 번역을 적용했습니다.</p>
 <div><span class="badge">CURRENT_CLIENT · CANONICAL_BRANCH_PARSE</span></div>
 <div id="meta" class="meta"></div>
 <style>
@@ -29,7 +29,7 @@
 <div id="status" class="sub">데이터 읽는 중…</div>
 <div class="layout"><aside id="chars" class="chars"></aside><section id="list"></section></div>
 <section class="card"><div class="head"><span class="topic">케노니컬 판정 기준</span></div><div class="body sub">
-캠프는 각 선택 분기의 <code>//◯·〇 / //△ / //✕·×</code> 표기와 <code>ChangeReliability@group_id</code>를 직접 읽습니다. 주점은 한국어 <code>SelectValue</code>와 <code>SetTavernAnswer@2/1/5</code>를 직접 연결하며 각각 상승 / 변화없음 / 하락입니다. 실제 1회당 Reliability 수치 증감량은 서버 해석 영역이므로 임의 점수는 표기하지 않습니다. 개별 Reliability의 파생 FriendshipType 경계는 ≤30 / 31–69 / ≥70입니다.
+캠프는 각 선택 분기의 <code>//◯·〇 / //△ / //✕·×</code> 표기와 <code>ChangeReliability@group_id</code>를 직접 읽습니다. 주점은 한국어 <code>SelectValue</code>와 <code>SetTavernAnswer@2/1/5</code>를 직접 연결하며 각각 상승 / 변화없음 / 하락입니다. 실제 1회당 Reliability 수치 증감량은 서버 해석 영역이므로 임의 점수는 표기하지 않습니다. 개별 Reliability의 파생 FriendshipType 경계는 ≤30 / 31–69 / ≥70입니다. 한국어 번들에 미번역으로 남은 일본어 문구는 표시만 한국어화했으며 판정 명령과 ID는 원본 그대로입니다.
 </div></section>
 <style>
 .empty{padding:30px;text-align:center;color:var(--muted);border:1px solid var(--line);border-radius:12px}.multi{color:var(--muted);font-size:12px}.namehead{font-size:22px;margin:0 0 10px}.stylekey{font:11px ui-monospace,monospace;color:var(--muted);margin-left:6px}@media(max-width:900px){.layout{grid-template-columns:1fr}.chars{position:static;max-height:260px}.controls{grid-template-columns:1fr 1fr}.asset{width:100%;margin-left:0}}@media(max-width:560px){main{padding:14px}h1{font-size:30px}.controls{grid-template-columns:1fr}.ans{grid-template-columns:74px 1fr}.ans .raw{grid-column:2}.chars{display:none}}
